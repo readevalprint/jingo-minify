@@ -19,8 +19,7 @@ def _build_html(items, wrapping):
     """
     Wrap `items` in wrapping.
     """
-    return jinja2.Markup("\n".join((wrapping % (settings.MEDIA_URL + item)
-                                   for item in items)))
+    return jinja2.Markup("\n".join((wrapping % item for item in items)))
 
 @register.function
 def js(bundle, debug=settings.TEMPLATE_DEBUG, defer=False, async=False):
@@ -32,12 +31,14 @@ def js(bundle, debug=settings.TEMPLATE_DEBUG, defer=False, async=False):
 
     if debug:
         items = settings.MINIFY_BUNDLES['js'][bundle]
+        items = [settings.STATIC_URL + i for i in items]
     else:
         build_id = BUILD_ID_JS
         bundle_full = "js:%s" % bundle
         if bundle_full in BUNDLE_HASHES:
             build_id = BUNDLE_HASHES[bundle_full]
-        items = ("js/%s-min.js?build=%s" % (bundle, build_id,),)
+        items = ('%s/js/%s-min.js?build=%s' %
+                    (settings.MEDIA_ROOT, bundle, build_id,),)
 
     attrs.append('src="%s"')
 
@@ -69,13 +70,15 @@ def css(bundle, media=False, debug=settings.TEMPLATE_DEBUG):
                 items.append('%s.css' % item)
             else:
                 items.append(item)
+        items = [settings.STATIC_URL + i for i in items]
     else:
         build_id = BUILD_ID_CSS
         bundle_full = "css:%s" % bundle
         if bundle_full in BUNDLE_HASHES:
             build_id = BUNDLE_HASHES[bundle_full]
 
-        items = ("css/%s-min.css?build=%s" % (bundle, build_id,),)
+        items = ('%s/css/%s-min.css?build=%s' %
+                    (settings.MEDIA_ROOT, bundle, build_id,),)
 
     return _build_html(items,
             '<link rel="stylesheet" media="%s" href="%%s" />' % media)
