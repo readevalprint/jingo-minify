@@ -13,7 +13,8 @@ except ImportError:
     BUILD_ID_CSS = BUILD_ID_JS = BUILD_ID_IMG = 'dev'
     BUNDLE_HASHES = {}
 
-path = lambda *a: os.path.join(settings.MEDIA_ROOT, *a)
+path_prefix = settings.STATIC_URL if settings.STATIC_URL else settings.MEDIA_URL
+path = lambda *a: os.path.join(path_prefix, *a)
 
 def _build_html(items, wrapping):
     """
